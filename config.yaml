@@ -1,0 +1,7 @@
+files:
+  2024: 
+    url: "https://www.estv.admin.ch/dam/estv/de/dokumente/qst/schweiz/tar2024txt.zip.download.zip/tar2024txt.zip"
+    script: 2022
+  2023: 
+    url: "https://www.estv.admin.ch/dam/estv/de/dokumente/qst/schweiz/qst-ch-tar2023txt-de.zip.download.zip/qst-ch-tar2023txt-de.zip"
+    script: 2022

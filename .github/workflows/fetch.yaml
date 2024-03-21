@@ -1,0 +1,43 @@
+name: Fetch file and convert
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+permissions:
+  checks: write
+jobs:
+  fetchAndParse:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        year: [2024, 2023]
+    
+    steps:
+      - name: Checkout open-admin-ch/quellensteuer-tarife
+        uses: actions/checkout@v4
+        with:
+          path: 'src'
+      - name: read config
+        id: yaml-files-year
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        with:
+          config: ${{ github.workspace }}/src/config.yaml
+      - uses: suisei-cn/actions-download-file@v1.6.0
+        id: download-tarife
+        name: download tarife
+        with:
+          url: "${{ steps.yaml-files-year.outputs[format('files.{0}.url', matrix.year)] }}"
+          target: ${{ github.workspace }}/downloads/
+          filename: tarife.zip
+          retry-times: 3
+      - name: run conversion
+        run: python ${{ github.workspace }}/src/scripts/${{ steps.yaml-files-year.outputs[format('files.{0}.script', matrix.year)] }}.py ${{ github.workspace }}  ${{ matrix.year }}
+        shell: sh
+      - name: Commit converted file
+        uses: stefanzweifel/git-auto-commit-action@v5.0.0
+        with:
+          repository: 'src/'
+          commit_message: 'feat(${{ matrix.year }}): update ${{ matrix.year }} tariffs'
